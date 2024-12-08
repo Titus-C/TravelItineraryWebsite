@@ -1,6 +1,15 @@
-using TravelItineraryWebsite.Components;
+﻿using TravelItineraryWebsite.Components;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using TravelItineraryWebsite.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContextFactory<TravelItineraryWebsiteContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TravelItineraryWebsiteContext") ?? throw new InvalidOperationException("Connection string 'TravelItineraryWebsiteContext' not found.")));
+
+builder.Services.AddQuickGridEntityFrameworkAdapter();
+
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -14,6 +23,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseMigrationsEndPoint();
 }
 
 app.UseHttpsRedirection();

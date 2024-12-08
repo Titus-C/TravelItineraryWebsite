@@ -1,0 +1,42 @@
+﻿@page "/itineraries"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using TravelItineraryWebsite.Domain
+@using TravelItineraryWebsite.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="itineraries/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Itinerary">
+    <PropertyColumn Property="itinerary => itinerary.Name" />
+    <PropertyColumn Property="itinerary => itinerary.StartDate" />
+    <PropertyColumn Property="itinerary => itinerary.EndDate" />
+    <PropertyColumn Property="itinerary => itinerary.DateCreated" />
+    <PropertyColumn Property="itinerary => itinerary.DateUpdated" />
+    <PropertyColumn Property="itinerary => itinerary.CreatedBy" />
+    <PropertyColumn Property="itinerary => itinerary.UpdatedBy" />
+
+    <TemplateColumn Context="itinerary">
+        <a href="@($"itineraries/edit?itineraryid={itinerary.ItineraryId}")">Edit</a> |
+        <a href="@($"itineraries/details?itineraryid={itinerary.ItineraryId}")">Details</a> |
+        <a href="@($"itineraries/delete?itineraryid={itinerary.ItineraryId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private TravelItineraryWebsiteContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

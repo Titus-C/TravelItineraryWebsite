@@ -1,0 +1,79 @@
+﻿@page "/itineraries/delete"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Itinerary</h2>
+    <hr />
+    @if (itinerary is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@itinerary.Name</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">StartDate</dt>
+            <dd class="col-sm-10">@itinerary.StartDate</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">EndDate</dt>
+            <dd class="col-sm-10">@itinerary.EndDate</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@itinerary.DateCreated</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@itinerary.DateUpdated</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@itinerary.CreatedBy</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@itinerary.UpdatedBy</dd>
+        </dl>
+        <EditForm method="post" Model="itinerary" OnValidSubmit="DeleteItinerary" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(itinerary is null)">Delete</button> |
+            <a href="/itineraries">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Itinerary? itinerary;
+
+    [SupplyParameterFromQuery]
+    private int ItineraryId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        itinerary = await context.Itinerary.FirstOrDefaultAsync(m => m.ItineraryId == ItineraryId);
+
+        if (itinerary is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteItinerary()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Itinerary.Remove(itinerary!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/itineraries");
+    }
+}

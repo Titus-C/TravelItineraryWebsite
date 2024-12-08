@@ -1,0 +1,52 @@
+﻿@page "/itinerarydetails/details"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>ItineraryDetail</h2>
+    <hr />
+    @if (itinerarydetail is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">StartDate</dt>
+            <dd class="col-sm-10">@itinerarydetail.StartDate</dd>
+            <dt class="col-sm-2">EndDate</dt>
+            <dd class="col-sm-10">@itinerarydetail.EndDate</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@itinerarydetail.Description</dd>
+            <dt class="col-sm-2">ItineraryId</dt>
+            <dd class="col-sm-10">@itinerarydetail.ItineraryId</dd>
+        </dl>
+        <div>
+            <a href="@($"/itinerarydetails/edit?itinerarydetailid={itinerarydetail.ItineraryDetailId}")">Edit</a> |
+            <a href="@($"/itinerarydetails")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private ItineraryDetail? itinerarydetail;
+
+    [SupplyParameterFromQuery]
+    private int ItineraryDetailId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        itinerarydetail = await context.ItineraryDetail.FirstOrDefaultAsync(m => m.ItineraryDetailId == ItineraryDetailId);
+
+        if (itinerarydetail is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

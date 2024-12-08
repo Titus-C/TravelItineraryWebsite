@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using TravelItineraryWebsite.Domain;
+using TravelItineraryWebsite.Data;
 
 namespace TravelItineraryWebsite.Data
 {
-    public class TravelItineraryWebsiteContext : DbContext
+    public class TravelItineraryWebsiteContext(DbContextOptions<TravelItineraryWebsiteContext> options) : IdentityDbContext<TravelItineraryWebsiteUser>(options)
     {
-        public TravelItineraryWebsiteContext (DbContextOptions<TravelItineraryWebsiteContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<TravelItineraryWebsite.Domain.User> User { get; set; } = default!;
         public DbSet<TravelItineraryWebsite.Domain.Itinerary> Itinerary { get; set; } = default!;
         public DbSet<TravelItineraryWebsite.Domain.ItineraryDetail> ItineraryDetail { get; set; } = default!;

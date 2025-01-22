@@ -1,0 +1,87 @@
+﻿@page "/transports/delete"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Transport</h2>
+    <hr />
+    @if (transport is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">TransportName</dt>
+            <dd class="col-sm-10">@transport.TransportName</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">TransportDuration</dt>
+            <dd class="col-sm-10">@transport.TransportDuration</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">TransportDepartureTime</dt>
+            <dd class="col-sm-10">@transport.TransportDepartureTime</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">TransportArrivalTime</dt>
+            <dd class="col-sm-10">@transport.TransportArrivalTime</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">ItineraryDetailId</dt>
+            <dd class="col-sm-10">@transport.ItineraryDetailId</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@transport.DateCreated</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@transport.DateUpdated</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@transport.CreatedBy</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@transport.UpdatedBy</dd>
+        </dl>
+        <EditForm method="post" Model="transport" OnValidSubmit="DeleteTransport" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(transport is null)">Delete</button> |
+            <a href="/transports">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Transport? transport;
+
+    [SupplyParameterFromQuery]
+    private int TransportId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        transport = await context.Transport.FirstOrDefaultAsync(m => m.TransportId == TransportId);
+
+        if (transport is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteTransport()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Transport.Remove(transport!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/transports");
+    }
+}

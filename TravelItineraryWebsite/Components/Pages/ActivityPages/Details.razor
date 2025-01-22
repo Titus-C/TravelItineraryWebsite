@@ -1,0 +1,60 @@
+﻿@page "/activities/details"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Activity</h2>
+    <hr />
+    @if (activity is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ActivityName</dt>
+            <dd class="col-sm-10">@activity.ActivityName</dd>
+            <dt class="col-sm-2">ActivityDescription</dt>
+            <dd class="col-sm-10">@activity.ActivityDescription</dd>
+            <dt class="col-sm-2">ActivityAddress</dt>
+            <dd class="col-sm-10">@activity.ActivityAddress</dd>
+            <dt class="col-sm-2">ItineraryDetailId</dt>
+            <dd class="col-sm-10">@activity.ItineraryDetailId</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@activity.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@activity.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@activity.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@activity.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/activities/edit?activityid={activity.ActivityId}")">Edit</a> |
+            <a href="@($"/activities")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Activity? activity;
+
+    [SupplyParameterFromQuery]
+    private int ActivityId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        activity = await context.Activity.FirstOrDefaultAsync(m => m.ActivityId == ActivityId);
+
+        if (activity is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@page "/weathers"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using TravelItineraryWebsite.Domain
+@using TravelItineraryWebsite.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="weathers/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Weather">
+    <PropertyColumn Property="weather => weather.WeatherName" />
+    <PropertyColumn Property="weather => weather.WeatherForecast" />
+    <PropertyColumn Property="weather => weather.WeatherDescription" />
+    <PropertyColumn Property="weather => weather.DestinationId" />
+    <PropertyColumn Property="weather => weather.LocationId" />
+    <PropertyColumn Property="weather => weather.DateCreated" />
+    <PropertyColumn Property="weather => weather.DateUpdated" />
+    <PropertyColumn Property="weather => weather.CreatedBy" />
+    <PropertyColumn Property="weather => weather.UpdatedBy" />
+
+    <TemplateColumn Context="weather">
+        <a href="@($"weathers/edit?weatherid={weather.WeatherId}")">Edit</a> |
+        <a href="@($"weathers/details?weatherid={weather.WeatherId}")">Details</a> |
+        <a href="@($"weathers/delete?weatherid={weather.WeatherId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private TravelItineraryWebsiteContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

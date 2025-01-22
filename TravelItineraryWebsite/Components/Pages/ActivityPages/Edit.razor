@@ -1,0 +1,124 @@
+﻿@page "/activities/edit"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Activity</h2>
+<hr />
+@if (Activity is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Activity" OnValidSubmit="UpdateActivity" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Activity.ActivityId" value="@Activity.ActivityId" />
+                <div class="mb-3">
+                    <label for="activityname" class="form-label">ActivityName:</label>
+                    <InputText id="activityname" @bind-Value="Activity.ActivityName" class="form-control" />
+                    <ValidationMessage For="() => Activity.ActivityName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="activitydescription" class="form-label">ActivityDescription:</label>
+                    <InputText id="activitydescription" @bind-Value="Activity.ActivityDescription" class="form-control" />
+                    <ValidationMessage For="() => Activity.ActivityDescription" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="activityaddress" class="form-label">ActivityAddress:</label>
+                    <InputText id="activityaddress" @bind-Value="Activity.ActivityAddress" class="form-control" />
+                    <ValidationMessage For="() => Activity.ActivityAddress" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="itinerarydetailid" class="form-label">ItineraryDetailId:</label>
+                    <InputNumber id="itinerarydetailid" @bind-Value="Activity.ItineraryDetailId" class="form-control" />
+                    <ValidationMessage For="() => Activity.ItineraryDetailId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="Activity.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => Activity.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="Activity.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => Activity.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="Activity.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => Activity.CreatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="Activity.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => Activity.UpdatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/activities">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int ActivityId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Activity? Activity { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Activity ??= await context.Activity.FirstOrDefaultAsync(m => m.ActivityId == ActivityId);
+
+        if (Activity is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateActivity()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Activity!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ActivityExists(Activity!.ActivityId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/activities");
+    }
+
+    private bool ActivityExists(int activityid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Activity.Any(e => e.ActivityId == activityid);
+    }
+}

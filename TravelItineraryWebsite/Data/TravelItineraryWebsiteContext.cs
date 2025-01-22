@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TravelItineraryWebsite.Configuration.Entities;
 using TravelItineraryWebsite.Data;
+using TravelItineraryWebsite.Domain;
 
 namespace TravelItineraryWebsite.Data
 {
@@ -19,5 +20,11 @@ namespace TravelItineraryWebsite.Data
             modelBuilder.ApplyConfiguration(new UserSeed());
             modelBuilder.ApplyConfiguration(new UserRoleSeed());
         }
+        public DbSet<TravelItineraryWebsite.Domain.Accomodation> Accomodation { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Activity> Activity { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Destination> Destination { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Location> Location { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Transport> Transport { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Weather> Weather { get; set; } = default!;
     }
 }

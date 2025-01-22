@@ -5,6 +5,8 @@ using TravelItineraryWebsite.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using TravelItineraryWebsite.Components.Account;
+using TravelItineraryWebsite;
+using TravelItineraryWebsite.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContextFactory<TravelItineraryWebsiteContext>(options =>
@@ -41,6 +43,13 @@ builder.Services.AddIdentityCore<TravelItineraryWebsiteUser>(options => options.
 
 builder.Services.AddSingleton<IEmailSender<TravelItineraryWebsiteUser>, IdentityNoOpEmailSender>();
 
+builder.Services.AddHttpClient<WeatherForecast>(client =>
+{
+    client.BaseAddress = new Uri("http://api.weatherapi.com");
+});
+builder.Services.AddControllers();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -61,5 +70,7 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.MapAdditionalIdentityEndpoints();;
+
+app.MapDefaultControllerRoute();
 
 app.Run();

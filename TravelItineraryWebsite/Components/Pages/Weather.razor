@@ -1,64 +1,52 @@
 ﻿@page "/weather"
-@attribute [StreamRendering]
+@using Microsoft.AspNetCore.Authorization
+@inject Service.WeatherForecast WeatherForecast
+@attribute [Authorize(Roles = "Administrator, User")]
 
 <PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
 
-<p>This component demonstrates showing data.</p>
+<p>Enter a city to get its current weather and forecast:</p>
 
-@if (forecasts == null)
+<input @bind="City" placeholder="Enter city" />
+<button @onclick="GetWeather">Get Weather</button>
+
+@if (weatherData != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <h2>Current Weather in @weatherData.Location.Name, @weatherData.Location.Country</h2>
+    <p>Temperature: @weatherData.Current.TempC °C (@weatherData.Current.TempF °F)</p>
+    <p>Humidity: @weatherData.Current.Humidity%</p>
+    <p>Condition: @weatherData.Current.Condition</p>
+    <p>Local Time: @weatherData.Location.Localtime</p>
+
+    <h3>Forecast</h3>
+    @foreach (var day in weatherData.Forecast.ForecastDay)
+    {
+        <p>
+            <strong>Date:</strong> @day.Date<br />
+            <strong>Max Temp:</strong> @day.Day.MaxtempC °C<br />
+            <strong>Min Temp:</strong> @day.Day.MintempC °C<br />
+            <strong>Chance of Rain:</strong> @day.Day.DailyChanceOfRain%
+        </p>
+    }
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private Service.WeatherData weatherData;
+    private string City = "Japan";
 
-    protected override async Task OnInitializedAsync()
+    private async Task GetWeather()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
-
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        System.Diagnostics.Debug.WriteLine("GetWeather button clicked!"); // Debug log
+        try
         {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
-    }
-
-    private class WeatherForecast
-    {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+            weatherData = await WeatherForecast.GetWeatherAsync(City);
+            System.Diagnostics.Debug.WriteLine("Weather data retrieved successfully.");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error fetching weather data: {ex.Message}");
+        }
     }
 }

@@ -74,8 +74,22 @@ else
     [SupplyParameterFromForm]
     private Itinerary? Itinerary { get; set; }
 
+    //Create userId string to store the user id, default value is "System".
+    private string userId = "System";
+    //Inject the AuthenticationStateProvider to get the user id.
+    @inject AuthenticationStateProvider authenticationStateProvider
+
     protected override async Task OnInitializedAsync()
     {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        // Get the userId claim
+        var userIdClaim = user.FindFirst("userId");
+        if (userIdClaim != null)
+        {
+            userId = userIdClaim.Value;
+        }
+
         using var context = DbFactory.CreateDbContext();
         Itinerary ??= await context.Itinerary.FirstOrDefaultAsync(m => m.ItineraryId == ItineraryId);
 
@@ -90,6 +104,12 @@ else
     private async Task UpdateItinerary()
     {
         using var context = DbFactory.CreateDbContext();
+
+        //Set the userId to the UpdatedBy fields.
+        Itinerary.UpdatedBy = userId;
+        //Set the DateUpdated fields to the current date and time.
+        Itinerary.DateUpdated = DateTime.Now;
+
         context.Attach(Itinerary!).State = EntityState.Modified;
 
         try

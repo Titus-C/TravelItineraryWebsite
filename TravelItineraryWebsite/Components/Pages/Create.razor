@@ -1,11 +1,24 @@
 @page "/create"
 @using Microsoft.AspNetCore.Authorization
-
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
 
 @attribute [Authorize(Roles = "Administrator, User")]
 
-<h3>Create</h3>
+<h3>Create your itinerary</h3>
+
+<p>Create an itenerary to get started!</p>
+
+<RadzenButton Click="@NavigateToCreateIt" Text="Create Itinerary" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+
+@* <p>@testText</p> *@
+
 
 @code {
+    // private string testText = "Not Clicked";
 
+    private void NavigateToCreateIt()
+    {
+        Navigation.NavigateTo("/itineraries/create");
+    }
 }

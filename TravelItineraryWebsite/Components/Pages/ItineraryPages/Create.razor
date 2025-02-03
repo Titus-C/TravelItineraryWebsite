@@ -21,31 +21,31 @@
                 <ValidationMessage For="() => Itinerary.Name" class="text-danger" /> 
             </div>        
             <div class="mb-3">
-                <label for="startdate" class="form-label">StartDate:</label> 
+                <label for="startdate" class="form-label">Start Date:</label> 
                 <InputDate id="startdate" @bind-Value="Itinerary.StartDate" class="form-control" /> 
                 <ValidationMessage For="() => Itinerary.StartDate" class="text-danger" /> 
             </div>        
             <div class="mb-3">
-                <label for="enddate" class="form-label">EndDate:</label> 
+                <label for="enddate" class="form-label">End Date:</label> 
                 <InputDate id="enddate" @bind-Value="Itinerary.EndDate" class="form-control" /> 
                 <ValidationMessage For="() => Itinerary.EndDate" class="text-danger" /> 
             </div>        
-            <div class="mb-3">
+            <div class="mb-3" hidden>
                 <label for="datecreated" class="form-label">DateCreated:</label> 
                 <InputDate id="datecreated" @bind-Value="Itinerary.DateCreated" class="form-control" /> 
                 <ValidationMessage For="() => Itinerary.DateCreated" class="text-danger" /> 
             </div>        
-            <div class="mb-3">
+            <div class="mb-3" hidden>
                 <label for="dateupdated" class="form-label">DateUpdated:</label> 
                 <InputDate id="dateupdated" @bind-Value="Itinerary.DateUpdated" class="form-control" /> 
                 <ValidationMessage For="() => Itinerary.DateUpdated" class="text-danger" /> 
             </div>        
-            <div class="mb-3">
+            <div class="mb-3" hidden>
                 <label for="createdby" class="form-label">CreatedBy:</label> 
                 <InputText id="createdby" @bind-Value="Itinerary.CreatedBy" class="form-control" /> 
                 <ValidationMessage For="() => Itinerary.CreatedBy" class="text-danger" /> 
             </div>        
-            <div class="mb-3">
+            <div class="mb-3" hidden>
                 <label for="updatedby" class="form-label">UpdatedBy:</label> 
                 <InputText id="updatedby" @bind-Value="Itinerary.UpdatedBy" class="form-control" /> 
                 <ValidationMessage For="() => Itinerary.UpdatedBy" class="text-danger" /> 
@@ -67,8 +67,35 @@
     private async Task AddItinerary()
     {
         using var context = DbFactory.CreateDbContext();
+        //Set the userId to the CreatedBy and UpdatedBy fields.
+        Itinerary.CreatedBy = userId;
+        Itinerary.UpdatedBy = userId;
+        //Set the DateCreated and DateUpdated fields to the current date and time.
+        Itinerary.DateCreated = DateTime.Now;
+        Itinerary.DateUpdated = DateTime.Now;
         context.Itinerary.Add(Itinerary);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/itineraries");
+    }
+
+    //Create userId string to store the user id, default value is "System".
+    private string userId = "System";
+    //Inject the AuthenticationStateProvider to get the user id.
+    @inject AuthenticationStateProvider authenticationStateProvider
+
+    protected override async void OnInitialized()
+    {
+        Itinerary.StartDate = new DateTime(DateTime.Now.Year, 1, 1); // Set to current year, Jan 1st
+        Itinerary.EndDate = new DateTime(DateTime.Now.Year, 1, 1); // Set to current year, Jan 1st
+
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        // Get the userId claim
+        var userIdClaim = user.FindFirst("userId");
+
+        if (userIdClaim != null)
+        {
+            userId = userIdClaim.Value;
+        }
     }
 }

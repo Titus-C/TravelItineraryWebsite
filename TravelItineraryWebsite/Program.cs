@@ -5,6 +5,7 @@ using TravelItineraryWebsite.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using TravelItineraryWebsite.Components.Account;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContextFactory<TravelItineraryWebsiteContext>(options =>
@@ -40,6 +41,8 @@ builder.Services.AddIdentityCore<TravelItineraryWebsiteUser>(options => options.
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<TravelItineraryWebsiteUser>, IdentityNoOpEmailSender>();
+
+builder.Services.AddRadzenComponents();
 
 var app = builder.Build();
 

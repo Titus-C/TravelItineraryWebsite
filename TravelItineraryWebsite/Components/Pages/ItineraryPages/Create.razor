@@ -85,8 +85,8 @@
 
     protected override async void OnInitialized()
     {
-        Itinerary.StartDate = new DateTime(DateTime.Now.Year, 1, 1); // Set to current year, Jan 1st
-        Itinerary.EndDate = new DateTime(DateTime.Now.Year, 1, 1); // Set to current year, Jan 1st
+        Itinerary.StartDate = DateTime.Now;
+        Itinerary.EndDate = DateTime.Now;
 
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;

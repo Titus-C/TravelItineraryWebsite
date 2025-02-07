@@ -1,0 +1,39 @@
+﻿@page "/itineraries/viewer/{ItineraryId:int}"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<h3>Itinerary Viewer</h3>
+
+@if (itinerary == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h1 class="display-5">@itinerary.Name</h1>
+
+    <h4>From @itinerary.StartDate.ToString("dddd, dd MMMM yyyy") to @itinerary.EndDate.ToString("dddd, dd MMMM yyyy")</h4>
+
+    
+}
+
+@code {
+    private Itinerary? itinerary;
+
+    [Parameter]
+    public int ItineraryId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        itinerary = await context.Itinerary.FirstOrDefaultAsync(m => m.ItineraryId == ItineraryId);
+
+        if (itinerary is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

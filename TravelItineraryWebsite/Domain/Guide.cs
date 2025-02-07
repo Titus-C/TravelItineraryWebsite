@@ -7,6 +7,7 @@
         public string? Description { get; set; }
         public int Views { get; set; }
         public int Saves { get; set; }
-        public int ItineraryId { get; set; }
+        public int? ItineraryId { get; set; }
+        public Itinerary? Itinerary { get; set; }
     }
 }

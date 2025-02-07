@@ -37,22 +37,22 @@ else
                     <InputDate id="enddate" @bind-Value="Itinerary.EndDate" class="form-control" />
                     <ValidationMessage For="() => Itinerary.EndDate" class="text-danger" />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="datecreated" class="form-label">DateCreated:</label>
                     <InputDate id="datecreated" @bind-Value="Itinerary.DateCreated" class="form-control" />
                     <ValidationMessage For="() => Itinerary.DateCreated" class="text-danger" />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="dateupdated" class="form-label">DateUpdated:</label>
                     <InputDate id="dateupdated" @bind-Value="Itinerary.DateUpdated" class="form-control" />
                     <ValidationMessage For="() => Itinerary.DateUpdated" class="text-danger" />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="createdby" class="form-label">CreatedBy:</label>
                     <InputText id="createdby" @bind-Value="Itinerary.CreatedBy" class="form-control" />
                     <ValidationMessage For="() => Itinerary.CreatedBy" class="text-danger" />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" hidden>
                     <label for="updatedby" class="form-label">UpdatedBy:</label>
                     <InputText id="updatedby" @bind-Value="Itinerary.UpdatedBy" class="form-control" />
                     <ValidationMessage For="() => Itinerary.UpdatedBy" class="text-danger" />

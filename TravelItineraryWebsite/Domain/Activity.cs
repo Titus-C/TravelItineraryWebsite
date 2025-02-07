@@ -6,9 +6,9 @@
         public string? Name { get; set; }
         public string? Description { get; set; }
         public string? Category { get; set; }
-        public string? Address { get; set; }
-        public string? PlaceId { get; set; }
-        public int ItineraryDetailId { get; set; }
-        public ItineraryDetail ItineraryDetail { get; set; }
+        public int? LocationId { get; set; }
+        public Location? Location { get; set; }
+        //public int ItineraryDetailId { get; set; }
+        public ICollection<ItineraryDetail> ItineraryDetails { get; } = new List<ItineraryDetail>();
     }
 }

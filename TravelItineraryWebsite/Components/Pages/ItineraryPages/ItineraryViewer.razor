@@ -1,6 +1,7 @@
 ﻿@page "/itineraries/viewer/{ItineraryId:int}"
 @using Microsoft.EntityFrameworkCore
 @using TravelItineraryWebsite.Domain
+@using TravelItineraryWebsite.Components.Pages.Shared
 @inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
 @inject NavigationManager NavigationManager
 
@@ -16,11 +17,14 @@ else
 
     <h4>From @itinerary.StartDate.ToString("dddd, dd MMMM yyyy") to @itinerary.EndDate.ToString("dddd, dd MMMM yyyy")</h4>
 
-    
+    @foreach (Day day in Days) {
+        <DayView dayId="@day.DayId"/>
+    }
 }
 
 @code {
     private Itinerary? itinerary;
+    private List<Day>? Days;
 
     [Parameter]
     public int ItineraryId { get; set; }
@@ -35,5 +39,8 @@ else
         {
             NavigationManager.NavigateTo("notfound");
         }
+
+        Days = itinerary.Days.ToList<Day>();
     }
+
 }

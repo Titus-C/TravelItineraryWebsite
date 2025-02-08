@@ -1,4 +1,6 @@
-﻿namespace TravelItineraryWebsite.Domain
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TravelItineraryWebsite.Domain
 {
     public class Transport
     {
@@ -7,7 +9,12 @@
         public int ArrivalLocationId { get; set; }
         public TimeSpan Duration { get; set; }
         public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        //public DateTime EndTime { get; set; }
+        [NotMapped]
+        public DateTime EndTime
+        {
+            get => StartTime.Add(Duration);
+        }
         public Location DepartureLocation { get; set; }
         public Location ArrivalLocation { get; set; }
         //public int ItineraryDetailId { get; set; }

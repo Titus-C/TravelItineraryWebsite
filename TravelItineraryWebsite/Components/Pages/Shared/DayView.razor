@@ -1,0 +1,136 @@
+﻿@page "/dayview/{dayId:int}"
+@using TravelItineraryWebsite.Data
+@using TravelItineraryWebsite.Domain
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Day Details</PageTitle>
+
+@if (day is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>Itinerary for @day.Date.ToShortDateString()</h3>
+    <!-- Use the reusable SortableList component to display the itinerary details -->
+    <SortableList T="ItineraryDetail"
+                  Items="@itineraryDetails"
+                  OnUpdate="HandleSortUpdate"
+                  Id="@("sortable-" + day.DayId)"
+                  Group="DayGroup">
+        <SortableItemTemplate Context="detail">
+            <!-- Render each detail as a Bootstrap card with a collapsible section -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <!-- Use the computed DisplayName property -->
+                    <h5 class="card-title mb-0">@detail.DisplayName</h5>
+                    <button class="btn btn-sm btn-outline-primary"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseDetail@detail.ItineraryDetailId"
+                            aria-expanded="false"
+                            aria-controls="collapseDetail@detail.ItineraryDetailId">
+                        Details
+                    </button>
+                </div>
+                <div id="collapseDetail@detail.ItineraryDetailId" class="collapse">
+                    <div class="card-body">
+                        <p><strong>Start Date:</strong> @(detail.StartDate?.ToString("g") ?? "N/A")</p>
+                        <p><strong>End Date:</strong> @(detail.EndDate?.ToString("g") ?? "N/A")</p>
+                        @* Display additional information based on the related entity *@
+                        @{
+                            var related = detail.RelatedEntity;
+                        }
+                        @if (related is Activity act)
+                        {
+                            <p><strong>Activity Description:</strong> @(act.Description ?? "No description")</p>
+                        }
+                        else if (related is Location loc)
+                        {
+                            <p><strong>Location Address:</strong> @(loc.Address ?? "No address")</p>
+                        }
+                        else if (related is Accommodation acc)
+                        {
+                            <p><strong>Accommodation:</strong> @(acc.Name ?? "No name")</p>
+                        }
+                        else if (related is Transport trans)
+                        {
+                            <p>
+                                <strong>Transport:</strong> From @(trans.DepartureLocation?.Address ?? "N/A")
+                                to @(trans.ArrivalLocation?.Address ?? "N/A")
+                            </p>
+                        }
+                        else
+                        {
+                            <p>No additional related details available.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </SortableItemTemplate>
+    </SortableList>
+}
+
+@code {
+    // The dayId comes from the route parameter.
+    [Parameter] public int dayId { get; set; }
+
+    // The Day entity loaded from the database.
+    private Day? day;
+
+    // A local list of itinerary details for the day, ordered by the Order property.
+    private List<ItineraryDetail> itineraryDetails = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        // Load the Day and include its ItineraryDetails ordered by the Order property.
+        day = await context.Day
+            .Include(d => d.ItineraryDetails.OrderBy(i => i.Order))
+            .FirstOrDefaultAsync(d => d.DayId == dayId);
+
+        if (day is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+        else
+        {
+            // If all details have an Order value of 0 (default), generate a proper sequential order.
+            if (day.ItineraryDetails.All(i => i.Order == 0))
+            {
+                day.GenerateDefaultOrder();
+                await context.SaveChangesAsync();
+            }
+            // Order the details by the Order property.
+            itineraryDetails = day.ItineraryDetails.OrderBy(i => i.Order).ToList();
+        }
+    }
+
+    /// <summary>
+    /// Called when the SortableList component signals that the order has been updated.
+    /// Reorders the local list, updates the Order property for each detail, and persists changes.
+    /// </summary>
+    private async Task HandleSortUpdate((int oldIndex, int newIndex) indices)
+    {
+        // Rearrange the local list
+        var movedItem = itineraryDetails[indices.oldIndex];
+        itineraryDetails.RemoveAt(indices.oldIndex);
+        itineraryDetails.Insert(indices.newIndex, movedItem);
+
+        // Update the Order property on each item to reflect its new position.
+        for (int i = 0; i < itineraryDetails.Count; i++)
+        {
+            itineraryDetails[i].Order = i;
+        }
+
+        // Persist changes to the database.
+        using var context = DbFactory.CreateDbContext();
+        foreach (var detail in itineraryDetails)
+        {
+            context.ItineraryDetail.Update(detail);
+        }
+        await context.SaveChangesAsync();
+    }
+}

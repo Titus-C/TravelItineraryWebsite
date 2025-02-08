@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelItineraryWebsite.Data;
 
@@ -11,9 +12,11 @@ using TravelItineraryWebsite.Data;
 namespace TravelItineraryWebsite.Migrations
 {
     [DbContext(typeof(TravelItineraryWebsiteContext))]
-    partial class TravelItineraryWebsiteContextModelSnapshot : ModelSnapshot
+    [Migration("20250207051939_fixAccommTypo")]
+    partial class fixAccommTypo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

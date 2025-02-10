@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelItineraryWebsite.Data;
 
@@ -11,9 +12,11 @@ using TravelItineraryWebsite.Data;
 namespace TravelItineraryWebsite.Migrations
 {
     [DbContext(typeof(TravelItineraryWebsiteContext))]
-    partial class TravelItineraryWebsiteContextModelSnapshot : ModelSnapshot
+    [Migration("20250210081725_initial")]
+    partial class initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,7 +254,7 @@ namespace TravelItineraryWebsite.Migrations
                         {
                             Id = "3781efa7-66dc-47f0-860f-e506d04102e4",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cf4bafd1-822e-4a94-bbe6-9e736a13bd0f",
+                            ConcurrencyStamp = "bb0dfe5b-45e5-4ad9-a51d-8dba545769cd",
                             Email = "admin@localhost.com",
                             EmailConfirmed = true,
                             FirstName = "Admin",
@@ -259,9 +262,9 @@ namespace TravelItineraryWebsite.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@LOCALHOST.COM",
                             NormalizedUserName = "ADMIN@LOCALHOST.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHDB5LLmiFW9Fe0hiTV7pBIa6Qk4vVp32sb4e0i+H/DppuUQXgom604EtwtQO2CX4w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKSAKc/j3+BFoOexgGP4+f0u1GOB4iAeyy7WHoU3tX5nCpGqzJZzxmEdTZPhJWnBPw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2eb6db85-6bc8-4b0c-a1a7-32aa95d93b94",
+                            SecurityStamp = "9d428b7f-cd18-4332-8082-efc851fc16a0",
                             TwoFactorEnabled = false,
                             UserName = "admin@localhost.com"
                         });

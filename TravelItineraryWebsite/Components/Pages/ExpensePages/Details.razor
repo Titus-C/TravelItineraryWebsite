@@ -1,0 +1,59 @@
+﻿@page "/expenses/details"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Expense Details</h1>
+
+<div>
+    <hr />
+    @if (expense is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@expense.Name</dd>
+            <dt class="col-sm-2">Amount</dt>
+            <dd class="col-sm-10">@expense.Amount</dd>
+            <dt class="col-sm-2">Category</dt>
+            <dd class="col-sm-10">@expense.Category</dd>
+            <dt class="col-sm-2">Date</dt>
+            <dd class="col-sm-10">@expense.Date</dd>
+            <dt class="col-sm-2">DateCreated</dt>
+            <dd class="col-sm-10">@expense.DateCreated</dd>
+            <dt class="col-sm-2">DateUpdated</dt>
+            <dd class="col-sm-10">@expense.DateUpdated</dd>
+            <dt class="col-sm-2">CreatedBy</dt>
+            <dd class="col-sm-10">@expense.CreatedBy</dd>
+            <dt class="col-sm-2">UpdatedBy</dt>
+            <dd class="col-sm-10">@expense.UpdatedBy</dd>
+        </dl>
+        <div>
+            <a href="@($"/expenses/edit?expenseid={expense.ExpenseId}")" class="btn btn-outline-dark">Edit</a> |
+            <a href="@($"/expenses")" class="btn btn-outline-dark">Cancel</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Expense? expense;
+
+    [SupplyParameterFromQuery]
+    private int ExpenseId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        expense = await context.Expense.FirstOrDefaultAsync(m => m.ExpenseId == ExpenseId);
+
+        if (expense is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

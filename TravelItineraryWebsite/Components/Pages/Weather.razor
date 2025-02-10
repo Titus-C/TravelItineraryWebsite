@@ -1,7 +1,7 @@
 ﻿@page "/weather"
 @using Microsoft.AspNetCore.Authorization
 @inject Service.WeatherForecast WeatherForecast
-@attribute [Authorize(Roles = "Administrator, User")]
+
 
 <PageTitle>Weather</PageTitle>
 
@@ -9,44 +9,81 @@
 
 <p>Enter a city to get its current weather and forecast:</p>
 
-<input @bind="City" placeholder="Enter city" />
-<button @onclick="GetWeather">Get Weather</button>
 
-@if (weatherData != null)
+<form method="post" @onsubmit="GetWeather" @formname="weather-forecast-form">
+    <AntiforgeryToken />
+
+    <div>
+        
+        <InputText id="city" @bind-Value="City" placeholder="Enter city" />
+        <button type="submit">Get Weather</button>
+    </div>
+</form>
+
+@if (isLoading)
 {
-    <h2>Current Weather in @weatherData.Location.Name, @weatherData.Location.Country</h2>
-    <p>Temperature: @weatherData.Current.TempC °C (@weatherData.Current.TempF °F)</p>
+    <p>Loading weather data...</p>
+}
+else if (errorMessage != null)
+{
+    <p style="color:red;">Error: @errorMessage</p>
+}
+else if (weatherData != null)
+{
+    <h4>Current Weather in @weatherData.Location.Name, @weatherData.Location.Country</h4>
+    <p>Temperature: @weatherData.Current.Temp_C °C</p>
+    <p>Temperature: @weatherData.Current.Temp_F °F</p>
+    <p>
+        Condition:
+        <div style="display: flex; align-items: center;">
+            <!-- Display condition icon -->
+            <img src="@weatherData.Current.condition.FullIconUrl" alt="@weatherData.Current.condition.Text" style="margin-right: 10px;" />
+            <!-- Display condition text -->
+            <span>@weatherData.Current.condition.Text</span>
+        </div>
+    </p>
+    <p>Wind Speed (KPH): @weatherData.Current.Wind_kph KPH</p>
+    <p>Wind Speed (MPH): @weatherData.Current.Wind_mph MPH</p>
     <p>Humidity: @weatherData.Current.Humidity%</p>
-    <p>Condition: @weatherData.Current.Condition</p>
+    <p>Latitude: @weatherData.Location.Lat °</p>
+    <p>Longitude: @weatherData.Location.Lon °</p>
     <p>Local Time: @weatherData.Location.Localtime</p>
 
-    <h3>Forecast</h3>
-    @foreach (var day in weatherData.Forecast.ForecastDay)
-    {
-        <p>
-            <strong>Date:</strong> @day.Date<br />
-            <strong>Max Temp:</strong> @day.Day.MaxtempC °C<br />
-            <strong>Min Temp:</strong> @day.Day.MintempC °C<br />
-            <strong>Chance of Rain:</strong> @day.Day.DailyChanceOfRain%
-        </p>
-    }
 }
 
 @code {
+    [SupplyParameterFromForm]
+    public string City { get; set; } = string.Empty;
+
     private Service.WeatherData weatherData;
-    private string City = "Japan";
+    
+    private bool isLoading = false; // Indicates whether data is being loaded
+    private string errorMessage = null; // Stores error messages
 
     private async Task GetWeather()
     {
-        System.Diagnostics.Debug.WriteLine("GetWeather button clicked!"); // Debug log
+        if (string.IsNullOrWhiteSpace(City))
+        {
+            errorMessage = "Please enter a valid city name.";
+            weatherData = null;
+            return;
+        }
+
+        isLoading = true; // Set loading state
+        errorMessage = null;
+
         try
         {
-            weatherData = await WeatherForecast.GetWeatherAsync(City);
-            System.Diagnostics.Debug.WriteLine("Weather data retrieved successfully.");
+            weatherData = await WeatherForecast.GetWeatherAsync(City); // Fetch weather data
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error fetching weather data: {ex.Message}");
+            weatherData = null;
+            errorMessage = $"Failed to fetch weather data: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false; // Reset loading state
         }
     }
 }

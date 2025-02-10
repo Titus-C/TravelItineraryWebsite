@@ -55,9 +55,6 @@
     </div>
 </div>
 
-<div>
-    <a href="/itineraries">Back to List</a>
-</div>
 
 @code {
     [SupplyParameterFromForm]
@@ -67,8 +64,35 @@
     private async Task AddItinerary()
     {
         using var context = DbFactory.CreateDbContext();
+        //Set the userId to the CreatedBy and UpdatedBy fields.
+        Itinerary.CreatedBy = userId;
+        Itinerary.UpdatedBy = userId;
+        //Set the DateCreated and DateUpdated fields to the current date and time.
+        Itinerary.DateCreated = DateTime.Now;
+        Itinerary.DateUpdated = DateTime.Now;
         context.Itinerary.Add(Itinerary);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/itineraries");
+    }
+
+    //Create userId string to store the user id, default value is "System".
+    private string userId = "System";
+    //Inject the AuthenticationStateProvider to get the user id.
+    @inject AuthenticationStateProvider authenticationStateProvider
+
+    protected override async void OnInitialized()
+    {
+        Itinerary.StartDate = DateTime.Now;
+        Itinerary.EndDate = DateTime.Now;
+
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        // Get the userId claim
+        var userIdClaim = user.FindFirst("userId");
+
+        if (userIdClaim != null)
+        {
+            userId = userIdClaim.Value;
+        }
     }
 }

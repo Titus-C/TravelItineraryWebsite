@@ -1,0 +1,129 @@
+﻿@page "/guides/edit"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Guide</h2>
+<hr />
+@if (Guide is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Guide" OnValidSubmit="UpdateGuide" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Guide.GuideId" value="@Guide.GuideId" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="Guide.Name" class="form-control" />
+                    <ValidationMessage For="() => Guide.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Guide.Description" class="form-control" />
+                    <ValidationMessage For="() => Guide.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="views" class="form-label">Views:</label>
+                    <InputNumber id="views" @bind-Value="Guide.Views" class="form-control" />
+                    <ValidationMessage For="() => Guide.Views" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="saves" class="form-label">Saves:</label>
+                    <InputNumber id="saves" @bind-Value="Guide.Saves" class="form-control" />
+                    <ValidationMessage For="() => Guide.Saves" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="itineraryid" class="form-label">ItineraryId:</label>
+                    <InputNumber id="itineraryid" @bind-Value="Guide.ItineraryId" class="form-control" />
+                    <ValidationMessage For="() => Guide.ItineraryId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="datecreated" class="form-label">DateCreated:</label>
+                    <InputDate id="datecreated" @bind-Value="Guide.DateCreated" class="form-control" />
+                    <ValidationMessage For="() => Guide.DateCreated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dateupdated" class="form-label">DateUpdated:</label>
+                    <InputDate id="dateupdated" @bind-Value="Guide.DateUpdated" class="form-control" />
+                    <ValidationMessage For="() => Guide.DateUpdated" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdby" class="form-label">CreatedBy:</label>
+                    <InputText id="createdby" @bind-Value="Guide.CreatedBy" class="form-control" />
+                    <ValidationMessage For="() => Guide.CreatedBy" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedby" class="form-label">UpdatedBy:</label>
+                    <InputText id="updatedby" @bind-Value="Guide.UpdatedBy" class="form-control" />
+                    <ValidationMessage For="() => Guide.UpdatedBy" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/guides">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int GuideId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Guide? Guide { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Guide ??= await context.Guide.FirstOrDefaultAsync(m => m.GuideId == GuideId);
+
+        if (Guide is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateGuide()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Guide!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!GuideExists(Guide!.GuideId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/guides");
+    }
+
+    private bool GuideExists(int guideid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Guide.Any(e => e.GuideId == guideid);
+    }
+}

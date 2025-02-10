@@ -1,0 +1,46 @@
+﻿@page "/expenses"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using TravelItineraryWebsite.Domain
+@using TravelItineraryWebsite.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Expense Manager</h1>
+
+<p>
+    <a href="expenses/create" class="guides-link btn btn-outline-dark">+ Add Expenses</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Expense">
+    <PropertyColumn Property="expense => expense.Name" />
+    <PropertyColumn Property="expense => expense.Amount" />
+    <PropertyColumn Property="expense => expense.Category" />
+    <PropertyColumn Property="expense => expense.Date" />
+
+    <TemplateColumn Context="expense">
+        <a href="@($"expenses/edit?expenseid={expense.ExpenseId}")">Edit</a> |
+        <a href="@($"expenses/details?expenseid={expense.ExpenseId}")">Details</a> |
+        <a href="@($"expenses/delete?expenseid={expense.ExpenseId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    //[Parameter] public int ItineraryId { get; set; }
+    private TravelItineraryWebsiteContext context = default!;
+    //private List<Expense> expenses = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+        //expenses = await context.ItineraryDetail
+            //.Where(d => d.ItineraryId == ItineraryId && d.ExpenseId != null)
+            //.Include(d => d.Expense)
+            //.Select(d => d.Expense!)
+            //.ToListAsync();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

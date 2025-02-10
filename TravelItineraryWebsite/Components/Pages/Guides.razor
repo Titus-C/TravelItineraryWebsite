@@ -1,10 +1,67 @@
 @page "/guides"
 @using Microsoft.AspNetCore.Authorization
+@inject NavigationManager Nav
 
-@attribute [Authorize(Roles = "Administrator, User")]
+<PageTitle>Expense Manager</PageTitle>
 
-<h3>Guides</h3>
+<h1>Expense Manager</h1>
+
+<!-- Trip Details Section -->
+<div class="trip-summary">
+    <h3>Me time</h3>
+    <p><strong>Location:</strong> Some island</p>
+    <p><strong>Date:</strong> 8/26/2023 - 8/28/2023</p>
+    <p><strong>Total Expense:</strong> $0.00</p>
+    <p class="status">Planned</p>
+</div>
+
+<!-- Expenses Section -->
+<div class="expenses-section">
+    <h4>Expenses</h4>
+
+    @if (expenses.Count == 0)
+    {
+        <p>You haven't added any expense yet.</p>
+    }
+    else
+    {
+        <div class="expense-list">
+            @foreach (var expense in expenses)
+            {
+                <div class="expense-card">
+                    <div class="expense-info">
+                        <span class="expense-name">@expense.Name</span>
+                        <span class="category-button">@expense.Category</span>
+                    </div>
+                    <div class="expense-date-amount">
+                        <span class="expense-date">@expense.Date.ToString("MM/dd/yyyy")</span>
+                        <span class="expense-amount">$@expense.Amount</span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Add Expense Button -->
+    <NavLink class="Addexpenses-link btn btn-outline-dark" href="/Addexpenses">
+        + Add expense
+    </NavLink>
+</div>
 
 @code {
+    private List<Expense> expenses = new List<Expense>();
 
+    // Navigate to the Add Expense page
+    private void NavigateToAddExpensePage()
+    {
+        Nav.NavigateTo("/Addexpenses");
+    }
+
+    public class Expense
+    {
+        public string Name { get; set; }
+        public string Category { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime Date { get; set; }
+    }
 }

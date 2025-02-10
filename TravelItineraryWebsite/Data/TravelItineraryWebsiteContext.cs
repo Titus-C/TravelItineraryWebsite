@@ -10,7 +10,16 @@ namespace TravelItineraryWebsite.Data
     {
         public DbSet<TravelItineraryWebsite.Domain.User> User { get; set; } = default!;
         public DbSet<TravelItineraryWebsite.Domain.Itinerary> Itinerary { get; set; } = default!;
+
+        public DbSet<TravelItineraryWebsite.Domain.Expense> Expense { get; set; } = default!;
+        
+        public DbSet<TravelItineraryWebsite.Domain.Guide> Guide { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Accomodation> Accomodation { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Activity> Activity { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Day> Day { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.DetailList> DetailList { get; set; } = default!;
         public DbSet<TravelItineraryWebsite.Domain.ItineraryDetail> ItineraryDetail { get; set; } = default!;
+        public DbSet<TravelItineraryWebsite.Domain.Location> Location { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,11 +29,6 @@ namespace TravelItineraryWebsite.Data
             modelBuilder.ApplyConfiguration(new UserSeed());
             modelBuilder.ApplyConfiguration(new UserRoleSeed());
         }
-        public DbSet<TravelItineraryWebsite.Domain.Accomodation> Accomodation { get; set; } = default!;
-        public DbSet<TravelItineraryWebsite.Domain.Activity> Activity { get; set; } = default!;
-        public DbSet<TravelItineraryWebsite.Domain.Destination> Destination { get; set; } = default!;
-        public DbSet<TravelItineraryWebsite.Domain.Location> Location { get; set; } = default!;
-        public DbSet<TravelItineraryWebsite.Domain.Transport> Transport { get; set; } = default!;
-        public DbSet<TravelItineraryWebsite.Domain.Weather> Weather { get; set; } = default!;
+        
     }
 }

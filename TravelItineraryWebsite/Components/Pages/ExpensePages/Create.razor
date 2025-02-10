@@ -1,0 +1,112 @@
+﻿@page "/expenses/create"
+@using Microsoft.EntityFrameworkCore
+@using TravelItineraryWebsite.Domain
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IDbContextFactory<TravelItineraryWebsite.Data.TravelItineraryWebsiteContext> DbFactory
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "Administrator, User")]
+
+<PageTitle>Create</PageTitle>
+
+<h1>Add Expense</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Expense" OnValidSubmit="AddExpense" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="Expense.Name" class="form-control" required />
+                <ValidationMessage For="() => Expense.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="amount" class="form-label">Amount:</label> 
+                <InputNumber min="0" id="amount" @bind-Value="Expense.Amount" class="form-control" required />
+                <ValidationMessage For="() => Expense.Amount" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="category" class="form-label">Category:</label> 
+                <InputSelect id="category" @bind-value="Expense.Category" class="form-control" required>
+
+
+                    <option value="">Choose Category</option>
+                    <option value="Food">Food</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Accommodation">Accommodation</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Others">Others</option>
+                </InputSelect>
+                <ValidationMessage For="() => Expense.Category" class="text-danger" />
+            </div>        
+            <div class="mb-3">
+                <label for="date" class="form-label">Date:</label> 
+                <InputDate id="date" @bind-Value="Expense.Date" class="form-control" required />
+                <ValidationMessage For="() => Expense.Date" class="text-danger" /> 
+            </div>        
+            <div class="mb-3" hidden>
+                <label for="datecreated" class="form-label">DateCreated:</label> 
+                <InputDate id="datecreated" @bind-Value="Expense.DateCreated" class="form-control" /> 
+                <ValidationMessage For="() => Expense.DateCreated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3" hidden>
+                <label for="dateupdated" class="form-label">DateUpdated:</label> 
+                <InputDate id="dateupdated" @bind-Value="Expense.DateUpdated" class="form-control" /> 
+                <ValidationMessage For="() => Expense.DateUpdated" class="text-danger" /> 
+            </div>        
+            <div class="mb-3" hidden>
+                <label for="createdby" class="form-label">CreatedBy:</label> 
+                <InputText id="createdby" @bind-Value="Expense.CreatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Expense.CreatedBy" class="text-danger" /> 
+            </div>        
+            <div class="mb-3" hidden>
+                <label for="updatedby" class="form-label">UpdatedBy:</label> 
+                <InputText id="updatedby" @bind-Value="Expense.UpdatedBy" class="form-control" /> 
+                <ValidationMessage For="() => Expense.UpdatedBy" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/expenses" class="btn btn-outline-dark">Cancel</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Expense Expense { get; set; } = new();
+    private string userId = "System";
+    protected override async Task OnInitializedAsync()
+    {
+        if (Expense.Date == default)
+        {
+            Expense.Date = DateTime.Now;
+        }
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        // Get the userId claim
+        var userIdClaim = user.FindFirst("userId");
+        if (userIdClaim != null)
+        {
+            userId = userIdClaim.Value;
+        }
+    }
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddExpense()
+    {
+        using var context = DbFactory.CreateDbContext();
+        
+        Expense.CreatedBy = userId;
+        Expense.UpdatedBy = userId;
+        Expense.DateCreated = DateTime.Now;
+        Expense.DateUpdated = DateTime.Now;
+        context.Expense.Add(Expense);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/expenses");
+    }
+}
